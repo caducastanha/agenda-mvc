@@ -15,14 +15,15 @@ class ContactPage extends StatefulWidget {
 
 class _ContactPageState extends State<ContactPage> {
   bool _userEdited = false;
-  List phones = [
-    {_phoneController: TextEditingController()}
-  ];
+  List phones = [1];
   Contact _editedContact;
+  String phone;
 
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _phoneController2 = TextEditingController();
+  final _phoneController3 = TextEditingController();
 
   final _nameFocus = FocusNode();
 
@@ -36,7 +37,7 @@ class _ContactPageState extends State<ContactPage> {
       _editedContact = Contact.fromMap(widget.contact.toMap());
       _nameController.text = _editedContact.name;
       _emailController.text = _editedContact.email;
-      _phoneController.text = _editedContact.phone;
+      // _phoneController.text = _editedContact.phone;
     }
   }
 
@@ -81,6 +82,8 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
+  void setPhone() {}
+
   Widget buildBody() {
     return SingleChildScrollView(
       padding: EdgeInsets.all(10),
@@ -92,7 +95,9 @@ class _ContactPageState extends State<ContactPage> {
           buildTextField("Email", _editedContact.setEmail, _emailController,
               textInputType: TextInputType.emailAddress),
           ...buildTextFieldList(
-              "Telefone", _editedContact.setPhone, _phoneController,
+              // "Telefone", _editedContact.setPhone, _phoneController,
+              "Telefone",
+              setPhone,
               textInputType: TextInputType.phone),
           TextButton(
               style: ButtonStyle(
@@ -109,9 +114,11 @@ class _ContactPageState extends State<ContactPage> {
                 ),
               ),
               onPressed: () {
-                setState(() {
-                  phones = [...phones, 1];
-                });
+                if (phones.length < 3) {
+                  setState(() {
+                    phones = [...phones, 1];
+                  });
+                }
               },
               child: Text('Adicionar outro telefone'))
         ],
@@ -181,17 +188,27 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  List buildTextFieldList(
-      String label, Function function, TextEditingController _controller,
+  List buildTextFieldList(String label, Function function,
       {TextInputType textInputType, FocusNode focusNode}) {
     List results = [];
     if (phones.length > 0) {
-      phones.forEach((e) => results = [
+      phones.forEach(
+        (e) {
+          dynamic controller;
+          if (results.length == 0) {
+            controller = _phoneController;
+          } else if (results.length == 1) {
+            controller = _phoneController2;
+          } else if (results.length == 2) {
+            controller = _phoneController3;
+          }
+
+          return results = [
             ...results,
             Padding(
               padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
               child: TextField(
-                controller: _controller,
+                controller: controller,
                 focusNode: focusNode,
                 decoration: InputDecoration(
                   labelText: '$label ${results.length + 1}',
@@ -225,49 +242,11 @@ class _ContactPageState extends State<ContactPage> {
                 keyboardType: textInputType,
               ),
             )
-          ]);
+          ];
+        },
+      );
 
       return results;
-    } else {
-      return [
-        Padding(
-          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-          child: TextField(
-            controller: _controller,
-            focusNode: focusNode,
-            decoration: InputDecoration(
-              labelText: label,
-              labelStyle: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.white,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-            ),
-            onChanged: (text) {
-              _userEdited = true;
-              setState(
-                () {
-                  function(text);
-                },
-              );
-            },
-            keyboardType: textInputType,
-          ),
-        )
-      ];
     }
   }
 
