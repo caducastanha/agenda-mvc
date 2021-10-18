@@ -15,7 +15,9 @@ class ContactPage extends StatefulWidget {
 
 class _ContactPageState extends State<ContactPage> {
   bool _userEdited = false;
-
+  List phones = [
+    {_phoneController: TextEditingController()}
+  ];
   Contact _editedContact;
 
   final _nameController = TextEditingController();
@@ -89,7 +91,8 @@ class _ContactPageState extends State<ContactPage> {
               focusNode: _nameFocus),
           buildTextField("Email", _editedContact.setEmail, _emailController,
               textInputType: TextInputType.emailAddress),
-          buildTextField("Telefone", _editedContact.setPhone, _phoneController,
+          ...buildTextFieldList(
+              "Telefone", _editedContact.setPhone, _phoneController,
               textInputType: TextInputType.phone),
           TextButton(
               style: ButtonStyle(
@@ -105,7 +108,11 @@ class _ContactPageState extends State<ContactPage> {
                   },
                 ),
               ),
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  phones = [...phones, 1];
+                });
+              },
               child: Text('Adicionar outro telefone'))
         ],
       ),
@@ -172,6 +179,96 @@ class _ContactPageState extends State<ContactPage> {
         keyboardType: textInputType,
       ),
     );
+  }
+
+  List buildTextFieldList(
+      String label, Function function, TextEditingController _controller,
+      {TextInputType textInputType, FocusNode focusNode}) {
+    List results = [];
+    if (phones.length > 0) {
+      phones.forEach((e) => results = [
+            ...results,
+            Padding(
+              padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+              child: TextField(
+                controller: _controller,
+                focusNode: focusNode,
+                decoration: InputDecoration(
+                  labelText: '$label ${results.length + 1}',
+                  labelStyle: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.white,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+                onChanged: (text) {
+                  _userEdited = true;
+                  setState(
+                    () {
+                      function(text);
+                    },
+                  );
+                },
+                keyboardType: textInputType,
+              ),
+            )
+          ]);
+
+      return results;
+    } else {
+      return [
+        Padding(
+          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+          child: TextField(
+            controller: _controller,
+            focusNode: focusNode,
+            decoration: InputDecoration(
+              labelText: label,
+              labelStyle: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.white,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+            onChanged: (text) {
+              _userEdited = true;
+              setState(
+                () {
+                  function(text);
+                },
+              );
+            },
+            keyboardType: textInputType,
+          ),
+        )
+      ];
+    }
   }
 
   Future<bool> _requestPop() {
